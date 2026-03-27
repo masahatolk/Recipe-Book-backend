@@ -1,0 +1,10 @@
+﻿services:
+  recipebook-api:
+    build:
+      context: ./backend/RecipeBook.Api
+      dockerfile: Dockerfile
+    container_name: recipebook-api
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend/RecipeBook.Api/data:/app/data
