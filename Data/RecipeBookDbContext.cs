@@ -16,14 +16,14 @@ public class RecipeBookDbContext(DbContextOptions<RecipeBookDbContext> options) 
         var listStringConverter = new ValueConverter<List<string>, string>(
             list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
             json => string.IsNullOrWhiteSpace(json)
-                ? []
-                : JsonSerializer.Deserialize<List<string>>(json, (JsonSerializerOptions?)null) ?? []);
+                ? new List<string>()
+                : JsonSerializer.Deserialize<List<string>>(json, (JsonSerializerOptions?)null) ?? new List<string>());
 
         var flagsConverter = new ValueConverter<HashSet<ExtraFlag>, string>(
             set => JsonSerializer.Serialize(set, (JsonSerializerOptions?)null),
             json => string.IsNullOrWhiteSpace(json)
-                ? []
-                : JsonSerializer.Deserialize<HashSet<ExtraFlag>>(json, (JsonSerializerOptions?)null) ?? []);
+                ? new HashSet<ExtraFlag>()
+                : JsonSerializer.Deserialize<HashSet<ExtraFlag>>(json, (JsonSerializerOptions?)null) ?? new HashSet<ExtraFlag>());
 
         modelBuilder.Entity<Product>(entity =>
         {
