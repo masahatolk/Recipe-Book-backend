@@ -5,6 +5,6 @@
       dockerfile: Dockerfile
     container_name: recipebook-api
     ports:
-      - "8080:8080"
+      - "18080:8080"
     volumes:
       - ./data:/app/data
