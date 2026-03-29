@@ -57,7 +57,7 @@ public class RecipeService(RecipeBookDbContext db)
         var entity = new Product
         {
             Name = request.Name.Trim(),
-            Photos = request.Photos ?? [],
+            Photos = NormalizePhotos(request.Photos),
             NutritionPer100g = request.NutritionPer100g,
             Composition = string.IsNullOrWhiteSpace(request.Composition) ? null : request.Composition.Trim(),
             Category = request.Category,
@@ -79,7 +79,7 @@ public class RecipeService(RecipeBookDbContext db)
         if (existing is null) return null;
 
         existing.Name = request.Name.Trim();
-        existing.Photos = request.Photos ?? [];
+        existing.Photos = NormalizePhotos(request.Photos);
         existing.NutritionPer100g = request.NutritionPer100g;
         existing.Composition = string.IsNullOrWhiteSpace(request.Composition) ? null : request.Composition.Trim();
         existing.Category = request.Category;
@@ -131,7 +131,7 @@ public class RecipeService(RecipeBookDbContext db)
         var dish = new Dish
         {
             Name = normalized.Name,
-            Photos = normalized.Photos ?? [],
+            Photos = NormalizePhotos(normalized.Photos),
             NutritionPerPortion = normalized.NutritionPerPortion,
             PortionSizeGrams = normalized.PortionSizeGrams,
             Category = normalized.Category!.Value,
@@ -158,7 +158,7 @@ public class RecipeService(RecipeBookDbContext db)
         var normalized = await NormalizeDishRequest(request, existing.Category);
 
         existing.Name = normalized.Name;
-        existing.Photos = normalized.Photos ?? [];
+        existing.Photos = NormalizePhotos(normalized.Photos);
         existing.NutritionPerPortion = normalized.NutritionPerPortion;
         existing.PortionSizeGrams = normalized.PortionSizeGrams;
         existing.Category = normalized.Category!.Value;
@@ -266,6 +266,31 @@ public class RecipeService(RecipeBookDbContext db)
         return result;
     }
 
+    private static List<string> NormalizePhotos(List<string>? photos)
+    {
+        if (photos is null) return [];
+
+        return photos
+            .Where(photo => !string.IsNullOrWhiteSpace(photo))
+            .Select(photo => photo.Trim())
+            .Select(NormalizeDataUri)
+            .ToList();
+    }
+
+    private static string NormalizeDataUri(string input)
+    {
+        const string marker = ";base64,";
+        var markerIndex = input.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+        if (markerIndex < 0)
+            return string.Concat(input.Where(c => !char.IsWhiteSpace(c)));
+
+        var prefix = input[..(markerIndex + marker.Length)];
+        var payload = input[(markerIndex + marker.Length)..];
+        var compactPayload = string.Concat(payload.Where(c => !char.IsWhiteSpace(c)));
+        return prefix + compactPayload;
+    }
+
+    
     private static void ValidateProduct(ProductUpsertRequest request)
     {
         if (request.Name.Trim().Length < 2) throw new ArgumentException("Название продукта: минимум 2 символа");
