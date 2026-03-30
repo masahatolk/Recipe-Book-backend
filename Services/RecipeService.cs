@@ -199,7 +199,10 @@ public class RecipeService(RecipeBookDbContext db)
         ValidateDish(request);
         var products = await db.Products.AsNoTracking().ToDictionaryAsync(x => x.Id);
 
-        var (cleanName, macroCategory) = ResolveMacroCategory(request.Name);
+        var hasManualCategory = request.Category is not null;
+        var (cleanName, macroCategory) = hasManualCategory
+            ? (request.Name.Trim(), (DishCategory?)null)
+            : ResolveMacroCategory(request.Name);
         var selectedCategory = request.Category ?? macroCategory ?? fallbackCategory;
         if (selectedCategory is null)
             throw new ArgumentException("Укажите категорию или макрос в названии");
