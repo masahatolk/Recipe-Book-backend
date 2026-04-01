@@ -199,7 +199,8 @@ public class RecipeService(RecipeBookDbContext db)
     {
         ValidateDish(request);
         var products = await db.Products.AsNoTracking().ToDictionaryAsync(x => x.Id);
-
+        var calculatedNutrition = CalculateNutrition(request.Ingredients, products);
+        
         var hasManualCategory = request.Category is not null;
         var (cleanName, macroCategory) = hasManualCategory
             ? (request.Name.Trim(), (DishCategory?)null)
@@ -207,6 +208,8 @@ public class RecipeService(RecipeBookDbContext db)
         var selectedCategory = request.Category ?? macroCategory ?? fallbackCategory;
         if (selectedCategory is null)
             throw new ArgumentException("Укажите категорию или макрос в названии");
+        if (!hasManualCategory && cleanName.Length < 2)
+            throw new ArgumentException("Название блюда: минимум 2 символа");
 
         var availableFlags = CalculateAvailableFlags(request.Ingredients, products);
         var normalizedFlags = (request.Flags ?? []).Where(availableFlags.Contains).ToHashSet();
@@ -214,6 +217,7 @@ public class RecipeService(RecipeBookDbContext db)
         return request with
         {
             Name = cleanName,
+            NutritionPerPortion = calculatedNutrition,
             Category = selectedCategory,
             Flags = normalizedFlags
         };
@@ -339,19 +343,27 @@ public class RecipeService(RecipeBookDbContext db)
         if (request.PortionSizeGrams <= 0) throw new ArgumentException("Размер порции должен быть > 0");
         if (request.Ingredients.Count == 0) throw new ArgumentException("Нужно добавить минимум 1 продукт");
         if (request.Ingredients.Any(x => x.Grams <= 0)) throw new ArgumentException("Вес ингредиента должен быть > 0");
-        ValidateNutrition(request.NutritionPerPortion, false);
+        ValidateNutrition(request.NutritionPerPortion, false, request.PortionSizeGrams);
     }
 
-    private static void ValidateNutrition(Nutrition nutrition, bool isPer100g)
+    private static void ValidateNutrition(Nutrition nutrition, bool isPer100g, double? portionSizeGrams = null)
     {
         if (nutrition.Calories < 0) throw new ArgumentException("Калорийность должна быть >= 0");
-        if (nutrition.Proteins is < 0 or > 100) throw new ArgumentException("Белки должны быть в диапазоне 0..100");
-        if (nutrition.Fats is < 0 or > 100) throw new ArgumentException("Жиры должны быть в диапазоне 0..100");
-        if (nutrition.Carbs is < 0 or > 100) throw new ArgumentException("Углеводы должны быть в диапазоне 0..100");
-        if (nutrition.Proteins + nutrition.Fats + nutrition.Carbs > 100)
+        if (nutrition.Proteins < 0) throw new ArgumentException("Белки должны быть >= 0");
+        if (nutrition.Fats < 0) throw new ArgumentException("Жиры должны быть >= 0");
+        if (nutrition.Carbs < 0) throw new ArgumentException("Углеводы должны быть >= 0");
+        if (isPer100g)
         {
-            var target = isPer100g ? "на 100 г" : "на порцию";
-            throw new ArgumentException($"Сумма БЖУ {target} не может превышать 100");
+            if (nutrition.Proteins > 100) throw new ArgumentException("Белки должны быть в диапазоне 0..100");
+            if (nutrition.Fats > 100) throw new ArgumentException("Жиры должны быть в диапазоне 0..100");
+            if (nutrition.Carbs > 100) throw new ArgumentException("Углеводы должны быть в диапазоне 0..100");
+        }
+
+        var maxBjuSum = isPer100g ? 100 : portionSizeGrams ?? 100;
+        if (nutrition.Proteins + nutrition.Fats + nutrition.Carbs > maxBjuSum)
+        {
+            var target = isPer100g ? "на 100 г" : $"на порцию ({maxBjuSum:0.##} г)";
+            throw new ArgumentException($"Сумма БЖУ {target} не может превышать {maxBjuSum:0.##}");
         }
     }
 }
