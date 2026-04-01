@@ -87,6 +87,7 @@ public class RecipeService(RecipeBookDbContext db)
         existing.Flags = request.Flags ?? [];
         existing.UpdatedAt = DateTime.UtcNow;
 
+        await SyncDishFlagsForProductAsync(id);
         await db.SaveChangesAsync();
         return existing;
     }
@@ -268,7 +269,37 @@ public class RecipeService(RecipeBookDbContext db)
 
         return result;
     }
+    
+    private async Task SyncDishFlagsForProductAsync(Guid productId)
+    {
+        var affectedDishes = await db.Dishes
+            .Include(x => x.Ingredients)
+            .ThenInclude(x => x.Product)
+            .Where(x => x.Ingredients.Any(i => i.ProductId == productId))
+            .ToListAsync();
 
+        foreach (var dish in affectedDishes)
+        {
+            var ingredientRequests = dish.Ingredients
+                .Select(i => new DishIngredientRequest(i.ProductId, i.Grams))
+                .ToList();
+
+            if (ingredientRequests.Count == 0) continue;
+
+            var products = dish.Ingredients
+                .Where(i => i.Product is not null)
+                .ToDictionary(i => i.ProductId, i => i.Product!);
+
+            var availableFlags = CalculateAvailableFlags(ingredientRequests, products);
+            var normalizedFlags = dish.Flags.Where(availableFlags.Contains).ToHashSet();
+
+            if (dish.Flags.SetEquals(normalizedFlags)) continue;
+
+            dish.Flags = normalizedFlags;
+            dish.UpdatedAt = DateTime.UtcNow;
+        }
+    }
+    
     private static List<string> NormalizePhotos(List<string>? photos)
     {
         if (photos is null) return [];
