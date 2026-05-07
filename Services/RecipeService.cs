@@ -200,6 +200,7 @@ public class RecipeService(RecipeBookDbContext db)
         ValidateDish(request);
         var products = await db.Products.AsNoTracking().ToDictionaryAsync(x => x.Id);
         var calculatedNutrition = CalculateNutrition(request.Ingredients, products);
+        ValidateNutrition(calculatedNutrition, false, request.PortionSizeGrams);
         
         var hasManualCategory = request.Category is not null;
         var (cleanName, macroCategory) = hasManualCategory
@@ -343,7 +344,6 @@ public class RecipeService(RecipeBookDbContext db)
         if (request.PortionSizeGrams <= 0) throw new ArgumentException("Размер порции должен быть > 0");
         if (request.Ingredients.Count == 0) throw new ArgumentException("Нужно добавить минимум 1 продукт");
         if (request.Ingredients.Any(x => x.Grams <= 0)) throw new ArgumentException("Вес ингредиента должен быть > 0");
-        ValidateNutrition(request.NutritionPerPortion, false, request.PortionSizeGrams);
     }
 
     private static void ValidateNutrition(Nutrition nutrition, bool isPer100g, double? portionSizeGrams = null)
