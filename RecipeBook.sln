@@ -7,6 +7,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		docker-compose.yaml = docker-compose.yaml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecipeBook.Api.Tests", "RecipeBook.Api.Tests\RecipeBook.Api.Tests.csproj", "{26579C2C-E459-43BF-8265-F52842A7A91C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,5 +19,9 @@ Global
 		{140103E4-F097-4DC8-80AE-8A15CE213D59}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{140103E4-F097-4DC8-80AE-8A15CE213D59}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{140103E4-F097-4DC8-80AE-8A15CE213D59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26579C2C-E459-43BF-8265-F52842A7A91C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26579C2C-E459-43BF-8265-F52842A7A91C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26579C2C-E459-43BF-8265-F52842A7A91C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26579C2C-E459-43BF-8265-F52842A7A91C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
