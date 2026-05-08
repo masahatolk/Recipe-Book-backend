@@ -7,7 +7,6 @@
 
     <ItemGroup>
         <Compile Remove="RecipeBook.Api.Tests/**/*.cs" />
-        <None Include="RecipeBook.Api.Tests/**" Exclude="RecipeBook.Api.Tests/**/*.csproj" />
     </ItemGroup>
     
     <ItemGroup>
@@ -20,8 +19,59 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.12" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
     </ItemGroup>
-
+    
     <ItemGroup>
-      <Folder Include="RecipeBook.Api.Tests\Properties\" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\appsettings.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\MvcTestingAppManifest.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests.deps.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\appsettings.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\MvcTestingAppManifest.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests.deps.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\appsettings.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\MvcTestingAppManifest.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests.deps.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\appsettings.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\MvcTestingAppManifest.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests.deps.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\obj\Debug\net8.0\MvcTestingAppManifest.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\obj\Debug\net8.0\RecipeBook.Api.Tests.sourcelink.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\obj\project.assets.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\obj\project.packagespec.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\obj\RecipeBook.Api.Tests.csproj.nuget.dgspec.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.deps.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.staticwebassets.endpoints.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\obj\Debug\net8.0\MvcTestingAppManifest.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\obj\Debug\net8.0\RecipeBook.Api.Tests.sourcelink.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\obj\project.assets.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\obj\project.packagespec.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\obj\RecipeBook.Api.Tests.csproj.nuget.dgspec.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.deps.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.staticwebassets.endpoints.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\obj\Debug\net8.0\MvcTestingAppManifest.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\obj\Debug\net8.0\RecipeBook.Api.Tests.sourcelink.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\obj\project.assets.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\obj\project.packagespec.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\obj\RecipeBook.Api.Tests.csproj.nuget.dgspec.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.deps.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.staticwebassets.endpoints.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\obj\Debug\net8.0\MvcTestingAppManifest.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\obj\Debug\net8.0\RecipeBook.Api.Tests.sourcelink.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\obj\project.assets.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\obj\project.packagespec.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.Api.Tests\obj\RecipeBook.Api.Tests.csproj.nuget.dgspec.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.deps.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="RecipeBook.Api.Tests\bin\Debug\net8.0\RecipeBook.staticwebassets.endpoints.json" />
     </ItemGroup>
 </Project>
