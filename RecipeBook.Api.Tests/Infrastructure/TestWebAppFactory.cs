@@ -10,6 +10,14 @@ namespace RecipeBook.Api.Tests.Infrastructure;
 public class TestWebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private readonly string _dbPath = Path.Combine(Path.GetTempPath(), $"recipebook-tests-{Guid.NewGuid():N}.db");
+    
+    public async Task ResetDatabaseAsync()
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<RecipeBookDbContext>();
+        await db.Database.EnsureDeletedAsync();
+        await db.Database.EnsureCreatedAsync();
+    }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {

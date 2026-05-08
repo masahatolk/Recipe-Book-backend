@@ -16,10 +16,10 @@ public class DishesApiTests(TestWebAppFactory factory) : IAsyncLifetime
     private HttpClient _client = null!;
     private static readonly JsonSerializerOptions JsonOptions = new() { Converters = { new JsonStringEnumConverter() } };
 
-    public Task InitializeAsync()
+    public async Task InitializeAsync()
     {
+        await factory.ResetDatabaseAsync();
         _client = factory.CreateClient();
-        return Task.CompletedTask;
     }
 
     public Task DisposeAsync()
