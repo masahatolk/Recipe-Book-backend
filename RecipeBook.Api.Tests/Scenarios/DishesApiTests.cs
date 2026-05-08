@@ -1,5 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using FluentAssertions;
 using RecipeBook.Api.Contracts;
 using RecipeBook.Api.Domain;
@@ -12,6 +14,7 @@ namespace RecipeBook.Api.Tests.Scenarios;
 public class DishesApiTests(TestWebAppFactory factory) : IAsyncLifetime
 {
     private HttpClient _client = null!;
+    private static readonly JsonSerializerOptions JsonOptions = new() { Converters = { new JsonStringEnumConverter() } };
 
     public Task InitializeAsync()
     {
@@ -44,11 +47,11 @@ public class DishesApiTests(TestWebAppFactory factory) : IAsyncLifetime
         var request = BuildDishRequest(nameWithMacro, [new DishIngredientRequest(product.Id, 120)], category: null);
 
         var response = await _client.PostAsJsonAsync("/api/dishes", request);
-        var dish = await response.Content.ReadFromJsonAsync<Dish>();
+        var dish = await response.Content.ReadFromJsonAsync<Dish>(JsonOptions);
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         dish!.Category.Should().Be(expected);
-        dish.Name.Should().NotContain('!');
+        dish.Name.Should().NotContain("!");
     }
 
     [Fact]
@@ -58,7 +61,7 @@ public class DishesApiTests(TestWebAppFactory factory) : IAsyncLifetime
         var request = BuildDishRequest("!десерт яблоко", [new DishIngredientRequest(product.Id, 100)], DishCategory.SALAD);
 
         var response = await _client.PostAsJsonAsync("/api/dishes", request);
-        var dish = await response.Content.ReadFromJsonAsync<Dish>();
+        var dish = await response.Content.ReadFromJsonAsync<Dish>(JsonOptions);
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         dish!.Category.Should().Be(DishCategory.SALAD);
@@ -139,7 +142,7 @@ public class DishesApiTests(TestWebAppFactory factory) : IAsyncLifetime
         var updateProductResponse = await _client.PutAsJsonAsync($"/api/products/{product.Id}", updateProduct);
         updateProductResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var getDish = await _client.GetFromJsonAsync<Dish>($"/api/dishes/{dish.Id}");
+        var getDish = await _client.GetFromJsonAsync<Dish>($"/api/dishes/{dish.Id}", JsonOptions);
         getDish!.Flags.Should().NotContain(ExtraFlag.VEGAN);
     }
 
@@ -185,7 +188,7 @@ public class DishesApiTests(TestWebAppFactory factory) : IAsyncLifetime
             null, ProductCategory.FROZEN, CookingRequirement.READY_TO_EAT, flags);
         var response = await _client.PostAsJsonAsync("/api/products", request);
         response.EnsureSuccessStatusCode();
-        return (await response.Content.ReadFromJsonAsync<Product>())!;
+        return (await response.Content.ReadFromJsonAsync<Product>(JsonOptions))!;
     }
 
     private DishUpsertRequest BuildDishRequest(string name, List<DishIngredientRequest> ingredients, DishCategory? category, HashSet<ExtraFlag>? flags = null)
@@ -195,6 +198,6 @@ public class DishesApiTests(TestWebAppFactory factory) : IAsyncLifetime
     {
         var response = await _client.PostAsJsonAsync("/api/dishes", request);
         response.EnsureSuccessStatusCode();
-        return (await response.Content.ReadFromJsonAsync<Dish>())!;
+        return (await response.Content.ReadFromJsonAsync<Dish>(JsonOptions))!;
     }
 }

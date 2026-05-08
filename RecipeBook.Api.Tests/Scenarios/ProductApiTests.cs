@@ -1,5 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using FluentAssertions;
 using RecipeBook.Api.Contracts;
 using RecipeBook.Api.Domain;
@@ -12,6 +14,7 @@ namespace RecipeBook.Api.Tests.Scenarios;
 public class ProductsApiTests(TestWebAppFactory factory) : IAsyncLifetime
 {
     private HttpClient _client = null!;
+    private static readonly JsonSerializerOptions JsonOptions = new() { Converters = { new JsonStringEnumConverter() } };
 
     public Task InitializeAsync()
     {
@@ -116,7 +119,7 @@ public class ProductsApiTests(TestWebAppFactory factory) : IAsyncLifetime
         await CreateProductAsync(BuildProductRequest($"Other-{uniq}", 1, 1, 1));
 
         var response = await _client.GetAsync($"/api/products?query={uniq}&flag={flagQuery}");
-        var body = await response.Content.ReadFromJsonAsync<List<Product>>();
+        var body = await response.Content.ReadFromJsonAsync<List<Product>>(JsonOptions);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         body!.Count.Should().Be(expectedCount);
@@ -129,7 +132,7 @@ public class ProductsApiTests(TestWebAppFactory factory) : IAsyncLifetime
         await CreateProductAsync(BuildProductRequest($"milk-{Guid.NewGuid():N}", 3, 2, 5));
 
         var response = await _client.GetAsync($"/api/products?query={veganOnly.Name[..4]}&flag=VEGAN");
-        var body = await response.Content.ReadFromJsonAsync<List<Product>>();
+        var body = await response.Content.ReadFromJsonAsync<List<Product>>(JsonOptions);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         body!.Should().ContainSingle(x => x.Id == veganOnly.Id);
@@ -171,7 +174,7 @@ public class ProductsApiTests(TestWebAppFactory factory) : IAsyncLifetime
     {
         var response = await _client.PostAsJsonAsync("/api/products", request);
         response.EnsureSuccessStatusCode();
-        return (await response.Content.ReadFromJsonAsync<Product>())!;
+        return (await response.Content.ReadFromJsonAsync<Product>(JsonOptions))!;
     }
 
     private static ProductUpsertRequest BuildProductRequest(string name, double proteins, double fats, double carbs, HashSet<ExtraFlag>? flags = null)
