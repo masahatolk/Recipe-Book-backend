@@ -16,6 +16,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../../RecipeBook.csproj" />
+        <ProjectReference Include="../RecipeBook.csproj" />
     </ItemGroup>
 </Project>
