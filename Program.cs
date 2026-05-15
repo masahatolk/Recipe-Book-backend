@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using RecipeBook.Api.Contracts;
+using Microsoft.AspNetCore.Mvc;
 using RecipeBook.Api.Data;
 using RecipeBook.Api.Services;
 
@@ -11,8 +12,18 @@ builder.Services.AddDbContext<RecipeBookDbContext>(options =>
 
 builder.Services.AddScoped<RecipeService>();
 
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
+
+
+
 builder.Services
-    .AddControllers()
+    .AddControllers(options =>
+    {
+        options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+    })
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
