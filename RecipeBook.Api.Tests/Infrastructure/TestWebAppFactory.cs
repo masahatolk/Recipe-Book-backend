@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Data.Sqlite;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +18,7 @@ public class TestWebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
         var db = scope.ServiceProvider.GetRequiredService<RecipeBookDbContext>();
         await db.Database.EnsureDeletedAsync();
         await db.Database.EnsureCreatedAsync();
+        SqliteConnection.ClearAllPools();
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -39,7 +41,28 @@ public class TestWebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
     public new async Task DisposeAsync()
     {
         await base.DisposeAsync();
-        if (File.Exists(_dbPath)) File.Delete(_dbPath);
+        SqliteConnection.ClearAllPools();
+
+        if (!File.Exists(_dbPath))
+            return;
+
+        const int maxAttempts = 5;
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            try
+            {
+                File.Delete(_dbPath);
+                return;
+            }
+            catch (IOException) when (attempt < maxAttempts)
+            {
+                await Task.Delay(100 * attempt);
+            }
+            catch (UnauthorizedAccessException) when (attempt < maxAttempts)
+            {
+                await Task.Delay(100 * attempt);
+            }
+        }
     }
 
     async Task IAsyncLifetime.InitializeAsync() => await Task.CompletedTask;
