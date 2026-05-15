@@ -68,16 +68,23 @@ public class DishesApiTests(TestWebAppFactory factory) : IAsyncLifetime
     }
 
     [Theory]
-    [InlineData(0, HttpStatusCode.BadRequest)]
-    [InlineData(-1, HttpStatusCode.BadRequest)]
-    [InlineData(1, HttpStatusCode.Created)]
-    [InlineData(250, HttpStatusCode.Created)]
-    public async Task CreateDish_ShouldValidatePortionSize(double portion, HttpStatusCode expected)
+    [InlineData(0)]
+    [InlineData(-1)]
+    [InlineData(1)]
+    [InlineData(250)]
+    [InlineData(30)]
+    public async Task CreateDish_ShouldValidatePortionSize(double portion)
     {
         var product = await CreateProductAsync("beans", 9, 0.5, 20, [ExtraFlag.VEGAN]);
         var request = new DishUpsertRequest("portion-check", null, new Nutrition(), [new DishIngredientRequest(product.Id, 100)], portion, DishCategory.SALAD, []);
 
         var response = await _client.PostAsJsonAsync("/api/dishes", request);
+        var expected = portion <= 0
+            ? HttpStatusCode.BadRequest
+            : (9 + 0.5 + 20) > portion
+                ? HttpStatusCode.BadRequest
+                : HttpStatusCode.Created;
+        
         response.StatusCode.Should().Be(expected);
     }
 
@@ -146,22 +153,40 @@ public class DishesApiTests(TestWebAppFactory factory) : IAsyncLifetime
         getDish!.Flags.Should().NotContain(ExtraFlag.VEGAN);
     }
 
+    [Fact]
+    public async Task CalculateEndpoint_ShouldReturnOk_ForValidIngredients()
+    {
+        var product = await CreateProductAsync("calc", 10, 5, 20, [ExtraFlag.VEGAN]);
+        var req = new List<DishIngredientRequest> { new(product.Id, 100) };
+
+        var response = await _client.PostAsJsonAsync("/api/dishes/calculate", req);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
     [Theory]
     [InlineData(100, 100)]
     [InlineData(50, 200)]
     [InlineData(25, 400)]
     [InlineData(10, 1000)]
-    public async Task CalculateEndpoint_ShouldReturnOk_ForValidIngredients(double grams, double portion)
+    [InlineData(100, 30)]
+    public async Task CreateDish_FromCalculatedIngredients_ShouldRespectPortionRules(double grams, double portion)
     {
-        var product = await CreateProductAsync("calc", 10, 5, 20, [ExtraFlag.VEGAN]);
-        var req = new List<DishIngredientRequest> { new(product.Id, grams) };
+        var proteinsPer100g = 10d;
+        var fatsPer100g = 5d;
+        var carbsPer100g = 20d;
 
-        var response = await _client.PostAsJsonAsync("/api/dishes/calculate", req);
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var product = await CreateProductAsync("calc-dish", proteinsPer100g, fatsPer100g, carbsPer100g, [ExtraFlag.VEGAN]);
+        var req = new List<DishIngredientRequest> { new(product.Id, grams) };
 
         var dishReq = new DishUpsertRequest($"calc-{Guid.NewGuid():N}", null, new Nutrition(), req, portion, DishCategory.SECOND_COURSE, []);
         var createResp = await _client.PostAsJsonAsync("/api/dishes", dishReq);
-        createResp.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        var bjuSumPerPortion = grams * (proteinsPer100g + fatsPer100g + carbsPer100g) / 100d;
+        var expected = bjuSumPerPortion > portion
+            ? HttpStatusCode.BadRequest
+            : HttpStatusCode.Created;
+
+        createResp.StatusCode.Should().Be(expected);
     }
 
     [Fact]

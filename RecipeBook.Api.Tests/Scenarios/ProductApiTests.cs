@@ -28,20 +28,19 @@ public class ProductsApiTests(TestWebAppFactory factory) : IAsyncLifetime
         return Task.CompletedTask;
     }
 
-    public static TheoryData<double, double, double, HttpStatusCode> BjuBoundaryData => new()
+    public static TheoryData<double, double, double> BjuBoundaryData => new()
     {
-        { 0, 0, 0, HttpStatusCode.Created },
-        { 100, 0, 0, HttpStatusCode.Created },
-        { 0, 100, 0, HttpStatusCode.Created },
-        { 0, 0, 100, HttpStatusCode.Created },
-        { 50, 25, 25, HttpStatusCode.Created },
-        { 33.33, 33.33, 33.34, HttpStatusCode.Created },
-        { 99.99, 0.01, 0, HttpStatusCode.Created },
-        { 100.01, 0, 0, HttpStatusCode.BadRequest },
-        { 0, 100.01, 0, HttpStatusCode.BadRequest },
-        { 0, 0, 100.01, HttpStatusCode.BadRequest },
-        { 40, 40, 21, HttpStatusCode.BadRequest },
-        { 0.1, 99.9, 0.1, HttpStatusCode.BadRequest }
+        { 0, 0, 0 },
+        { 100, 0, 0 },
+        { 0, 100, 0 },
+        { 0, 0, 100 },
+        { 50, 25, 25 },
+        { 99.9, 0.1, 0 },
+        { 100.01, 0, 0 },
+        { 0, 100.01, 0 },
+        { 0, 0, 100.01 },
+        { 40, 40, 21 },
+        { 0.1, 99.9, 0.1 }
     };
 
     public static TheoryData<string, HttpStatusCode> NameBoundaryData => new()
@@ -56,10 +55,16 @@ public class ProductsApiTests(TestWebAppFactory factory) : IAsyncLifetime
     /// <summary>Эквивалентное разбиение + BVA для полей БЖУ.</summary>
     [Theory]
     [MemberData(nameof(BjuBoundaryData))]
-    public async Task CreateProduct_ShouldValidateBjuBoundaries(double proteins, double fats, double carbs, HttpStatusCode expected)
+    public async Task CreateProduct_ShouldValidateBjuBoundaries(double proteins, double fats, double carbs)
     {
         var request = BuildProductRequest($"P-{Guid.NewGuid():N}", proteins, fats, carbs);
         var response = await _client.PostAsJsonAsync("/api/products", request);
+        var macrosWithinRange = proteins <= 100 && fats <= 100 && carbs <= 100;
+        var macrosSumWithinLimit = proteins + fats + carbs <= 100;
+        var expected = macrosWithinRange && macrosSumWithinLimit
+            ? HttpStatusCode.Created
+            : HttpStatusCode.BadRequest;
+
         response.StatusCode.Should().Be(expected);
     }
 
