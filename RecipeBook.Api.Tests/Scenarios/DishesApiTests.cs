@@ -39,6 +39,20 @@ public class DishesApiTests(TestWebAppFactory factory) : IAsyncLifetime
         {"!перекус батончик", DishCategory.SNACK}
     };
     
+    public static TheoryData<string, DishCategory, string> MultipleMacroCases => new()
+    {
+        { "!десерт !суп торт", DishCategory.DESSERT, "!суп торт" },
+        { "!суп !десерт борщ", DishCategory.SOUP, "!десерт борщ" },
+        { "салат !напиток !перекус", DishCategory.DRINK, "салат !перекус" }
+    };
+    
+    public static TheoryData<string> InvalidMacroWithoutCategoryCases => new()
+    {
+        { "!несуществующий блюдо" },
+        { "обычное имя без макроса" },
+        { "!" }
+    };
+    
     public static TheoryData<double> PortionSizeData => new()
     {
         { 0 },
@@ -95,7 +109,7 @@ public class DishesApiTests(TestWebAppFactory factory) : IAsyncLifetime
         dish!.Category.Should().Be(expected);
         dish.Name.Should().NotContain("!");
     }
-
+    
     [Fact]
     public async Task CreateDish_ShouldRespectManualCategory_OverMacro()
     {
@@ -107,6 +121,35 @@ public class DishesApiTests(TestWebAppFactory factory) : IAsyncLifetime
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         dish!.Category.Should().Be(DishCategory.SALAD);
+    }
+    
+    [Theory]
+    [MemberData(nameof(MultipleMacroCases))]
+    public async Task CreateDish_ShouldUseFirstResolvableMacro_WhenSeveralMacrosPresent(
+        string nameWithMultipleMacros,
+        DishCategory expectedCategory,
+        string expectedName)
+    {
+        var product = await CreateProductAsync("multi-macro", 1, 1, 1, [ExtraFlag.VEGAN]);
+        var request = BuildDishRequest(nameWithMultipleMacros, [new DishIngredientRequest(product.Id, 100)], category: null);
+
+        var response = await _client.PostAsJsonAsync("/api/dishes", request);
+        var dish = await response.Content.ReadFromJsonAsync<Dish>(JsonOptions);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        dish!.Category.Should().Be(expectedCategory);
+        dish.Name.Should().Be(expectedName);
+    }
+    
+    [Theory]
+    [MemberData(nameof(InvalidMacroWithoutCategoryCases))]
+    public async Task CreateDish_ShouldRejectUnknownOrMissingMacro_WhenCategoryNotProvided(string invalidMacroName)
+    {
+        var product = await CreateProductAsync("invalid-macro", 1, 1, 1, [ExtraFlag.VEGAN]);
+        var request = BuildDishRequest(invalidMacroName, [new DishIngredientRequest(product.Id, 100)], category: null);
+
+        var response = await _client.PostAsJsonAsync("/api/dishes", request);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Theory]
