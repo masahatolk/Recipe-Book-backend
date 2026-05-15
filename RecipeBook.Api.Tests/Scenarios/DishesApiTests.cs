@@ -38,7 +38,49 @@ public class DishesApiTests(TestWebAppFactory factory) : IAsyncLifetime
         {"!суп куриный", DishCategory.SOUP},
         {"!перекус батончик", DishCategory.SNACK}
     };
-
+    
+    public static TheoryData<double> PortionSizeData => new()
+    {
+        { 0 },
+        { -1 },
+        { 1 },
+        { 250 },
+        { 30 }
+    };
+    
+    public static TheoryData<double> IngredientWeightData => new()
+    {
+        { 0 },
+        { -1 }
+    };
+    
+    public static TheoryData<string> DishFlagsData => new()
+    {
+        { "VEGAN" },
+        { "GLUTEN_FREE" },
+        { "SUGAR_FREE" },
+        { "VEGAN&flag=GLUTEN_FREE" },
+        { "VEGAN&flag=SUGAR_FREE" },
+        { "GLUTEN_FREE&flag=SUGAR_FREE" }
+    };
+    
+    public static TheoryData<string> DishCategoryFilterData => new()
+    {
+        { "SALAD" },
+        { "SOUP" },
+        { "DESSERT" },
+        { "DRINK" },
+        { "SNACK" }
+    };
+    
+    public static TheoryData<double, double> CalculatedIngredientPortionData => new()
+    {
+        { 100, 100 },
+        { 50, 200 },
+        { 25, 400 },
+        { 10, 1000 },
+        { 100, 30 }
+    };
     [Theory]
     [MemberData(nameof(MacroCases))]
     public async Task CreateDish_ShouldApplyMacroCategory_WhenCategoryNotProvided(string nameWithMacro, DishCategory expected)
@@ -68,11 +110,7 @@ public class DishesApiTests(TestWebAppFactory factory) : IAsyncLifetime
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    [InlineData(1)]
-    [InlineData(250)]
-    [InlineData(30)]
+    [MemberData(nameof(PortionSizeData))]
     public async Task CreateDish_ShouldValidatePortionSize(double portion)
     {
         var product = await CreateProductAsync("beans", 9, 0.5, 20, [ExtraFlag.VEGAN]);
@@ -89,8 +127,7 @@ public class DishesApiTests(TestWebAppFactory factory) : IAsyncLifetime
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
+    [MemberData(nameof(IngredientWeightData))]
     public async Task CreateDish_ShouldValidateIngredientWeight(double grams)
     {
         var product = await CreateProductAsync("rice", 7, 1, 77, [ExtraFlag.GLUTEN_FREE]);
@@ -109,12 +146,7 @@ public class DishesApiTests(TestWebAppFactory factory) : IAsyncLifetime
     }
 
     [Theory]
-    [InlineData("VEGAN")]
-    [InlineData("GLUTEN_FREE")]
-    [InlineData("SUGAR_FREE")]
-    [InlineData("VEGAN&flag=GLUTEN_FREE")]
-    [InlineData("VEGAN&flag=SUGAR_FREE")]
-    [InlineData("GLUTEN_FREE&flag=SUGAR_FREE")]
+    [MemberData(nameof(DishFlagsData))]
     public async Task ListDishes_ShouldFilterByFlags(string flags)
     {
         var p = await CreateProductAsync("f", 1, 1, 1, [ExtraFlag.VEGAN, ExtraFlag.GLUTEN_FREE, ExtraFlag.SUGAR_FREE]);
@@ -125,11 +157,7 @@ public class DishesApiTests(TestWebAppFactory factory) : IAsyncLifetime
     }
 
     [Theory]
-    [InlineData("SALAD")]
-    [InlineData("SOUP")]
-    [InlineData("DESSERT")]
-    [InlineData("DRINK")]
-    [InlineData("SNACK")]
+    [MemberData(nameof(DishCategoryFilterData))]
     public async Task ListDishes_ShouldAcceptCategoryFilter(string category)
     {
         var response = await _client.GetAsync($"/api/dishes?category={category}");
@@ -164,11 +192,7 @@ public class DishesApiTests(TestWebAppFactory factory) : IAsyncLifetime
     }
 
     [Theory]
-    [InlineData(100, 100)]
-    [InlineData(50, 200)]
-    [InlineData(25, 400)]
-    [InlineData(10, 1000)]
-    [InlineData(100, 30)]
+    [MemberData(nameof(CalculatedIngredientPortionData))]
     public async Task CreateDish_FromCalculatedIngredients_ShouldRespectPortionRules(double grams, double portion)
     {
         var proteinsPer100g = 10d;

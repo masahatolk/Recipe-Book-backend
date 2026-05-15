@@ -53,8 +53,40 @@ public async Task InitializeAsync()
         { "Пр", HttpStatusCode.Created },
         { " ", HttpStatusCode.BadRequest }
     };
+    
+    public static TheoryData<double, double, double> NegativeMacrosData => new()
+    {
+        { -0.01, 0, 0 },
+        { 0, -0.01, 0 },
+        { 0, 0, -0.01 }
+    };
+    
+    public static TheoryData<string, string> SortOptionsData => new()
+    {
+        { "name", "asc" },
+        { "name", "desc" },
+        { "calories", "asc" },
+        { "calories", "desc" },
+        { "proteins", "asc" },
+        { "proteins", "desc" },
+        { "fats", "asc" },
+        { "fats", "desc" },
+        { "carbs", "asc" },
+        { "carbs", "desc" }
+    };
+    
+    public static TheoryData<string, int> ProductFlagFilterData => new()
+    {
+        { "VEGAN", 1 },
+        { "GLUTEN_FREE", 1 },
+        { "SUGAR_FREE", 1 },
+        { "VEGAN&flag=GLUTEN_FREE", 1 },
+        { "VEGAN&flag=SUGAR_FREE", 1 },
+        { "GLUTEN_FREE&flag=SUGAR_FREE", 1 },
+        { "VEGAN&flag=GLUTEN_FREE&flag=SUGAR_FREE", 1 }
+    };
 
-    /// <summary>Эквивалентное разбиение + BVA для полей БЖУ.</summary>
+    /// <summary>Эквивалентное разбиение + BVA для полей БЖУ </summary>
     [Theory]
     [MemberData(nameof(BjuBoundaryData))]
     public async Task CreateProduct_ShouldValidateBjuBoundaries(double proteins, double fats, double carbs)
@@ -70,7 +102,7 @@ public async Task InitializeAsync()
         response.StatusCode.Should().Be(expected);
     }
 
-    /// <summary>Эквивалентное разбиение + BVA по длине названия.</summary>
+    /// <summary>Эквивалентное разбиение + BVA по длине названия </summary>
     [Theory]
     [MemberData(nameof(NameBoundaryData))]
     public async Task CreateProduct_ShouldValidateNameLength(string name, HttpStatusCode expected)
@@ -81,9 +113,7 @@ public async Task InitializeAsync()
     }
 
     [Theory]
-    [InlineData(-0.01, 0, 0)]
-    [InlineData(0, -0.01, 0)]
-    [InlineData(0, 0, -0.01)]
+    [MemberData(nameof(NegativeMacrosData))]
     public async Task CreateProduct_ShouldRejectNegativeMacros(double proteins, double fats, double carbs)
     {
         var request = BuildProductRequest($"N-{Guid.NewGuid():N}", proteins, fats, carbs);
@@ -92,16 +122,7 @@ public async Task InitializeAsync()
     }
 
     [Theory]
-    [InlineData("name", "asc")]
-    [InlineData("name", "desc")]
-    [InlineData("calories", "asc")]
-    [InlineData("calories", "desc")]
-    [InlineData("proteins", "asc")]
-    [InlineData("proteins", "desc")]
-    [InlineData("fats", "asc")]
-    [InlineData("fats", "desc")]
-    [InlineData("carbs", "asc")]
-    [InlineData("carbs", "desc")]
+    [MemberData(nameof(SortOptionsData))]
     public async Task ListProducts_ShouldSupportSortOptions(string sortBy, string direction)
     {
         await CreateProductAsync(BuildProductRequest($"Alpha-{Guid.NewGuid():N}", 5, 2, 1));
@@ -112,13 +133,7 @@ public async Task InitializeAsync()
     }
 
     [Theory]
-    [InlineData("VEGAN", 1)]
-    [InlineData("GLUTEN_FREE", 1)]
-    [InlineData("SUGAR_FREE", 1)]
-    [InlineData("VEGAN&flag=GLUTEN_FREE", 1)]
-    [InlineData("VEGAN&flag=SUGAR_FREE", 1)]
-    [InlineData("GLUTEN_FREE&flag=SUGAR_FREE", 1)]
-    [InlineData("VEGAN&flag=GLUTEN_FREE&flag=SUGAR_FREE", 1)]
+    [MemberData(nameof(ProductFlagFilterData))]
     public async Task ListProducts_ShouldFilterByFlags(string flagQuery, int expectedCount)
     {
         var uniq = Guid.NewGuid().ToString("N")[..6];
