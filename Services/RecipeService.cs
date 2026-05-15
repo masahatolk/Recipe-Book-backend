@@ -12,7 +12,7 @@ public class ProductDeletionBlockedException(List<string> dishNames) : Exception
 
 public class RecipeService(RecipeBookDbContext db)
 {
-    private static readonly Dictionary<string, DishCategory> MacroMap = new()
+    private static readonly Dictionary<string, DishCategory> MacroMap = new(StringComparer.OrdinalIgnoreCase)
     {
         ["!десерт"] = DishCategory.DESSERT,
         ["!первое"] = DishCategory.FIRST_COURSE,
@@ -227,6 +227,25 @@ public class RecipeService(RecipeBookDbContext db)
     private static (string Name, DishCategory? Category) ResolveMacroCategory(string input)
     {
         var normalized = input.Trim();
+        if (string.IsNullOrWhiteSpace(normalized))
+            return (normalized, null);
+
+        var firstToken = normalized.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+        if (!string.IsNullOrEmpty(firstToken))
+        {
+            var normalizedToken = firstToken
+                .Trim()
+                .TrimEnd('.', ',', ';', ':', '!', '?')
+                .ToLowerInvariant();
+
+            if (MacroMap.TryGetValue(normalizedToken, out var tokenCategory))
+            {
+                var tail = normalized[firstToken.Length..].Trim();
+                var cleanedFromToken = string.Join(' ', tail.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+                return (cleanedFromToken, tokenCategory);
+            }
+        }
+
         var lower = normalized.ToLowerInvariant();
 
         var bestMatch = MacroMap
