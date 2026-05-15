@@ -14,7 +14,7 @@ namespace RecipeBook.Api.Tests.Scenarios;
 public class DishesApiTests(TestWebAppFactory factory) : IAsyncLifetime
 {
     private HttpClient _client = null!;
-    private static readonly JsonSerializerOptions JsonOptions = new() { Converters = { new JsonStringEnumConverter() } };
+    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter() } };
 
     public async Task InitializeAsync()
     {

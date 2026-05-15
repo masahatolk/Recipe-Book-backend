@@ -16,9 +16,9 @@ public class ProductsApiTests(TestWebAppFactory factory) : IAsyncLifetime
     private HttpClient _client = null!;
 
     private static readonly JsonSerializerOptions
-        JsonOptions = new() { Converters = { new JsonStringEnumConverter() } };
+        JsonOptions = new() { PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter() } };
 
-    public async Task InitializeAsync()
+public async Task InitializeAsync()
     {
         await factory.ResetDatabaseAsync();
         _client = factory.CreateClient();
