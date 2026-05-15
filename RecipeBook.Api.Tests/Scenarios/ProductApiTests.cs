@@ -14,7 +14,9 @@ namespace RecipeBook.Api.Tests.Scenarios;
 public class ProductsApiTests(TestWebAppFactory factory) : IAsyncLifetime
 {
     private HttpClient _client = null!;
-    private static readonly JsonSerializerOptions JsonOptions = new() { Converters = { new JsonStringEnumConverter() } };
+
+    private static readonly JsonSerializerOptions
+        JsonOptions = new() { Converters = { new JsonStringEnumConverter() } };
 
     public async Task InitializeAsync()
     {
@@ -45,11 +47,11 @@ public class ProductsApiTests(TestWebAppFactory factory) : IAsyncLifetime
 
     public static TheoryData<string, HttpStatusCode> NameBoundaryData => new()
     {
-        {"A", HttpStatusCode.BadRequest},
-        {"AB", HttpStatusCode.Created},
-        {"  AB  ", HttpStatusCode.Created},
-        {"Пр", HttpStatusCode.Created},
-        {" ", HttpStatusCode.BadRequest}
+        { "A", HttpStatusCode.BadRequest },
+        { "AB", HttpStatusCode.Created },
+        { "  AB  ", HttpStatusCode.Created },
+        { "Пр", HttpStatusCode.Created },
+        { " ", HttpStatusCode.BadRequest }
     };
 
     /// <summary>Эквивалентное разбиение + BVA для полей БЖУ.</summary>
@@ -120,7 +122,8 @@ public class ProductsApiTests(TestWebAppFactory factory) : IAsyncLifetime
     public async Task ListProducts_ShouldFilterByFlags(string flagQuery, int expectedCount)
     {
         var uniq = Guid.NewGuid().ToString("N")[..6];
-        await CreateProductAsync(BuildProductRequest($"Filtered-{uniq}", 1, 1, 1, [ExtraFlag.VEGAN, ExtraFlag.GLUTEN_FREE, ExtraFlag.SUGAR_FREE]));
+        await CreateProductAsync(BuildProductRequest($"Filtered-{uniq}", 1, 1, 1,
+            [ExtraFlag.VEGAN, ExtraFlag.GLUTEN_FREE, ExtraFlag.SUGAR_FREE]));
         await CreateProductAsync(BuildProductRequest($"Other-{uniq}", 1, 1, 1));
 
         var response = await _client.GetAsync($"/api/products?query={uniq}&flag={flagQuery}");
@@ -133,10 +136,12 @@ public class ProductsApiTests(TestWebAppFactory factory) : IAsyncLifetime
     [Fact]
     public async Task ListProducts_ShouldFilterByCombinedFlagsAndQuery()
     {
-        var veganOnly = await CreateProductAsync(BuildProductRequest($"tofu-{Guid.NewGuid():N}", 10, 2, 4, flags: [ExtraFlag.VEGAN]));
-        await CreateProductAsync(BuildProductRequest($"milk-{Guid.NewGuid():N}", 3, 2, 5));
+        var uniq = Guid.NewGuid().ToString("N")[..8];
+        var veganOnly =
+            await CreateProductAsync(BuildProductRequest($"tofu-{uniq}", 10, 2, 4, flags: [ExtraFlag.VEGAN]));
+        await CreateProductAsync(BuildProductRequest($"milk-{uniq}", 3, 2, 5));
 
-        var response = await _client.GetAsync($"/api/products?query={veganOnly.Name[..4]}&flag=VEGAN");
+        var response = await _client.GetAsync($"/api/products?query={uniq}&flag=VEGAN");
         var body = await response.Content.ReadFromJsonAsync<List<Product>>(JsonOptions);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -146,11 +151,22 @@ public class ProductsApiTests(TestWebAppFactory factory) : IAsyncLifetime
     [Fact]
     public async Task DeleteProduct_WhenUsedInDish_ShouldReturnConflictWithDishNames()
     {
-        var product = await CreateProductAsync(BuildProductRequest($"tomato-{Guid.NewGuid():N}", 1, 0.2, 4, flags: [ExtraFlag.VEGAN]));
+        var uniq = Guid.NewGuid().ToString("N");
+        await CreateProductAsync(BuildProductRequest($"tomato-{uniq}", 1, 0.2, 4, flags: [ExtraFlag.VEGAN]));
 
-        var dishRequest = new DishUpsertRequest("!салат tomato", null, new Nutrition(), [new DishIngredientRequest(product.Id, 100)], 150, null, [ExtraFlag.VEGAN]);
+        var productsResponse = await _client.GetAsync($"/api/products?query={uniq}");
+        var products = await productsResponse.Content.ReadFromJsonAsync<List<Product>>(JsonOptions);
+        productsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var product = products!.Should().ContainSingle().Subject;
+
+        var dishRequest = new DishUpsertRequest("salad tomato", null, new Nutrition(), [new DishIngredientRequest(product.Id, 100)], 150, DishCategory.SALAD, [ExtraFlag.VEGAN]);
         var createDishResponse = await _client.PostAsJsonAsync("/api/dishes", dishRequest);
-        createDishResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+        var errorBody = await createDishResponse.Content.ReadAsStringAsync();
+
+        createDishResponse.StatusCode.Should().Be(
+            HttpStatusCode.Created,
+            $"response body: {errorBody}"
+        );
 
         var deleteResponse = await _client.DeleteAsync($"/api/products/{product.Id}");
         var error = await deleteResponse.Content.ReadFromJsonAsync<ProductDeletionBlockedResponse>();
@@ -182,6 +198,8 @@ public class ProductsApiTests(TestWebAppFactory factory) : IAsyncLifetime
         return (await response.Content.ReadFromJsonAsync<Product>(JsonOptions))!;
     }
 
-    private static ProductUpsertRequest BuildProductRequest(string name, double proteins, double fats, double carbs, HashSet<ExtraFlag>? flags = null)
-        => new(name, null, new Nutrition { Calories = 100, Proteins = proteins, Fats = fats, Carbs = carbs }, "test", ProductCategory.VEGETABLES, CookingRequirement.READY_TO_EAT, flags ?? []);
+    private static ProductUpsertRequest BuildProductRequest(string name, double proteins, double fats, double carbs,
+        HashSet<ExtraFlag>? flags = null)
+        => new(name, null, new Nutrition { Calories = 100, Proteins = proteins, Fats = fats, Carbs = carbs }, "test",
+            ProductCategory.VEGETABLES, CookingRequirement.READY_TO_EAT, flags ?? []);
 }
