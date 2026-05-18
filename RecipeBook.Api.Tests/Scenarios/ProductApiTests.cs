@@ -86,7 +86,6 @@ public async Task InitializeAsync()
         { "VEGAN&flag=GLUTEN_FREE&flag=SUGAR_FREE", 1 }
     };
 
-    /// <summary>Эквивалентное разбиение + BVA для полей БЖУ </summary>
     [Theory]
     [MemberData(nameof(BjuBoundaryData))]
     public async Task CreateProduct_ShouldValidateBjuBoundaries(double proteins, double fats, double carbs)
@@ -102,7 +101,6 @@ public async Task InitializeAsync()
         response.StatusCode.Should().Be(expected);
     }
 
-    /// <summary>Эквивалентное разбиение + BVA по длине названия </summary>
     [Theory]
     [MemberData(nameof(NameBoundaryData))]
     public async Task CreateProduct_ShouldValidateNameLength(string name, HttpStatusCode expected)
